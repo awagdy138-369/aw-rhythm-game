@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>مغامرات الإيقاع 🥁</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; overflow-x:hidden; }
+  body {
+    font-family:'Baloo Bhaijaan 2', 'Segoe UI', sans-serif;
+    background: linear-gradient(160deg,#7F53AC 0%,#647DEE 45%,#43C6AC 100%);
+    min-height:100vh; color:#fff; user-select:none;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .screen { width:100%; max-width:520px; padding:18px 16px 40px; display:flex; flex-direction:column; align-items:center; }
+  .hidden { display:none !important; }
+
+  /* ---------- shared ---------- */
+  .btn {
+    font-family:inherit; border:none; cursor:pointer; color:#fff;
+    background:linear-gradient(180deg,#FFB347,#FF7B54);
+    border-radius:999px; padding:14px 42px; font-size:1.35rem; font-weight:800;
+    box-shadow:0 6px 0 #d95f3b, 0 10px 18px rgba(0,0,0,.25);
+    transition:transform .08s, box-shadow .08s;
+  }
+  .btn:active { transform:translateY(4px); box-shadow:0 2px 0 #d95f3b, 0 4px 8px rgba(0,0,0,.25); }
+  .btn.secondary { background:linear-gradient(180deg,#4FC3F7,#2196F3); box-shadow:0 6px 0 #1565C0, 0 10px 18px rgba(0,0,0,.25); font-size:1.1rem; padding:12px 30px; }
+  .btn.secondary:active { box-shadow:0 2px 0 #1565C0, 0 4px 8px rgba(0,0,0,.25); }
+  .btn.ghost { background:rgba(255,255,255,.18); box-shadow:0 4px 0 rgba(0,0,0,.18); font-size:1rem; padding:10px 22px; }
+  .topbar { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .topbar .title-sm { font-size:1.1rem; font-weight:700; opacity:.95; }
+  .iconbtn { font-family:inherit; background:rgba(255,255,255,.2); border:none; color:#fff; font-size:1rem;
+    border-radius:999px; padding:8px 16px; cursor:pointer; font-weight:700; }
+  .iconbtn:active { transform:scale(.95); }
+
+  /* ---------- home ---------- */
+  .logo { font-size:5.2rem; margin-top:26px; animation:bounce 2.2s ease-in-out infinite; filter:drop-shadow(0 10px 14px rgba(0,0,0,.3)); }
+  @keyframes bounce { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-16px) rotate(4deg)} }
+  h1.gametitle { font-size:2.6rem; font-weight:800; text-shadow:0 4px 0 rgba(0,0,0,.18); margin:4px 0 2px; }
+  .subtitle { font-size:1.15rem; opacity:.92; margin-bottom:26px; }
+  .floatynote { position:fixed; font-size:2rem; opacity:.5; animation:floaty 7s linear infinite; pointer-events:none; }
+  @keyframes floaty { 0%{transform:translateY(105vh) rotate(0)} 100%{transform:translateY(-12vh) rotate(40deg)} }
+  .homebadges { display:flex; gap:10px; margin-top:26px; flex-wrap:wrap; justify-content:center; }
+  .badge { background:rgba(255,255,255,.16); border-radius:16px; padding:10px 14px; font-size:.95rem; font-weight:700; }
+
+  /* ---------- level select ---------- */
+  .levels-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; width:100%; margin-top:18px; }
+  .levelcell {
+    border:none; font-family:inherit; cursor:pointer; border-radius:22px; padding:16px 6px 12px;
+    background:rgba(255,255,255,.92); color:#4a3b8f; display:flex; flex-direction:column; align-items:center; gap:4px;
+    box-shadow:0 5px 0 rgba(0,0,0,.18); transition:transform .08s;
+  }
+  .levelcell:active { transform:translateY(3px); }
+  .levelcell .num { font-size:1.7rem; font-weight:800; }
+  .levelcell .lvlstars { font-size:.95rem; letter-spacing:1px; }
+  .levelcell .lvlicon { font-size:1.5rem; }
+  .levelcell.locked { background:rgba(255,255,255,.28); color:rgba(255,255,255,.75); cursor:default; }
+
+  /* ---------- intro (learn the symbol) ---------- */
+  .card-white { background:rgba(255,255,255,.95); color:#40306e; border-radius:26px; padding:22px; width:100%;
+    box-shadow:0 8px 0 rgba(0,0,0,.15); text-align:center; margin-top:10px; }
+  .card-white h2 { font-size:1.5rem; margin-bottom:6px; }
+  .card-white p { font-size:1.1rem; line-height:1.7; }
+  .newsym { display:flex; align-items:center; justify-content:center; gap:18px; margin:14px 0; flex-wrap:wrap; }
+  .newsym .glyph { font-size:4rem; line-height:1; color:#222; background:#fff; border-radius:20px; padding:6px 18px; box-shadow:inset 0 0 0 3px #ffd54f; }
+  .newsym .say { font-size:2.4rem; font-weight:800; color:#e64a8a; }
+  .tap-hear { margin-top:6px; font-size:1rem; color:#7a6aa8; font-weight:700; }
+
+  /* ---------- rhythm cards row ---------- */
+  .pattern-wrap { width:100%; background:rgba(0,0,0,.16); border-radius:24px; padding:18px 12px; margin-top:14px; }
+  .pattern { display:flex; gap:10px; justify-content:center; align-items:stretch; flex-wrap:wrap; }
+  .tok {
+    border:none; font-family:inherit; cursor:pointer; min-width:74px; padding:12px 8px 10px; border-radius:18px;
+    background:#fff; color:#222; display:flex; flex-direction:column; align-items:center; gap:2px;
+    box-shadow:0 4px 0 rgba(0,0,0,.22); transition:transform .1s, background .1s;
+  }
+  .tok .tokglyph { font-size:2rem; line-height:1.1; }
+  .tok .toksay { font-size:1.15rem; font-weight:800; color:#5b3ea8; }
+  .tok.rest .toksay { color:#888; }
+  .tok.lit { background:#FFE082; transform:scale(1.12); box-shadow:0 4px 0 #d8a700, 0 0 22px 6px rgba(255,224,130,.85); }
+  .tok.tapped { background:#C8E6C9; }
+  .listen-hint { text-align:center; margin-top:14px; font-size:1.05rem; opacity:.9; }
+
+  /* ---------- play ---------- */
+  .drumzone { margin-top:22px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  #bigDrum {
+    width:210px; height:210px; border-radius:50%; border:10px solid #8d4b2f; cursor:pointer;
+    background:radial-gradient(circle at 35% 30%, #ffe9c9, #f7c877 55%, #e09a4e);
+    box-shadow:0 12px 0 #6e3820, 0 22px 30px rgba(0,0,0,.35);
+    font-size:4.2rem; display:flex; align-items:center; justify-content:center;
+    transition:transform .06s; touch-action:manipulation;
+  }
+  #bigDrum:active, #bigDrum.hit { transform:scale(.9); }
+  .countin { font-size:3.4rem; font-weight:800; height:74px; text-shadow:0 4px 0 rgba(0,0,0,.25); }
+  .beatbar { width:100%; height:14px; border-radius:99px; background:rgba(255,255,255,.22); overflow:hidden; }
+  .beatbar > div { height:100%; width:0%; background:linear-gradient(90deg,#FFD54F,#FF8A65); border-radius:99px; }
+  .score-live { font-size:1.15rem; font-weight:700; min-height:1.6em; }
+
+  /* ---------- result ---------- */
+  .result-stars { font-size:4.2rem; margin:18px 0 6px; letter-spacing:6px; }
+  .result-stars .dim { opacity:.28; }
+  .result-msg { font-size:1.5rem; font-weight:800; margin-bottom:4px; }
+  .result-sub { font-size:1.05rem; opacity:.9; margin-bottom:22px; }
+  .btnrow { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+
+  canvas#confetti { position:fixed; inset:0; pointer-events:none; z-index:50; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<!-- ============ HOME ============ -->
+<div class="screen" id="scr-home">
+  <div class="logo">🥁</div>
+  <h1 class="gametitle">مغامرات الإيقاع</h1>
+  <div class="subtitle">اتعلم إيقاعات المزيكا وانت بتلعب! 🎵</div>
+  <button class="btn" id="btnStart">ابدأ اللعب ▶</button>
+  <div style="height:14px"></div>
+  <button class="btn secondary" id="btnLevels">اختار مستوى 🗺️</button>
+  <div class="homebadges">
+    <div class="badge">🎵 تا</div>
+    <div class="badge">🎶 تي تي</div>
+    <div class="badge">✨ تا فا تي في</div>
+  </div>
+</div>
+
+<!-- ============ LEVEL SELECT ============ -->
+<div class="screen hidden" id="scr-levels">
+  <div class="topbar">
+    <button class="iconbtn" data-go="home">🏠 الرئيسية</button>
+    <div class="title-sm">اختار المستوى</div>
+    <div style="width:84px"></div>
+  </div>
+  <div class="levels-grid" id="levelsGrid"></div>
+</div>
+
+<!-- ============ LEVEL INTRO ============ -->
+<div class="screen hidden" id="scr-intro">
+  <div class="topbar">
+    <button class="iconbtn" data-go="levels">🗺️ المستويات</button>
+    <div class="title-sm" id="introLevelName">المستوى ١</div>
+    <div style="width:84px"></div>
+  </div>
+  <div class="card-white">
+    <h2 id="introTitle"></h2>
+    <div class="newsym">
+      <div class="glyph" id="introGlyph"></div>
+      <div class="say" id="introSay"></div>
+    </div>
+    <p id="introDesc"></p>
+    <div class="tap-hear">👆 دوس على الكارت تسمع صوته</div>
+  </div>
+  <div class="pattern-wrap">
+    <div class="pattern" id="introPattern"></div>
+  </div>
+  <div style="height:22px"></div>
+  <button class="btn" id="btnGoListen">يلا نسمع النمط 👂</button>
+</div>
+
+<!-- ============ LISTEN / PLAY ============ -->
+<div class="screen hidden" id="scr-play">
+  <div class="topbar">
+    <button class="iconbtn" id="btnBackIntro">🔙 رجوع</button>
+    <div class="title-sm" id="playLevelName"></div>
+    <button class="iconbtn" id="btnVoice">🔊 النطق: شغال</button>
+  </div>
+  <div class="pattern-wrap">
+    <div class="pattern" id="playPattern"></div>
+    <div class="listen-hint" id="playHint">دوس "اسمع" وركّز في الإيقاع 👂</div>
+  </div>
+  <div class="drumzone">
+    <div class="countin" id="countIn"></div>
+    <div class="beatbar"><div id="beatFill"></div></div>
+    <div id="bigDrum">🥁</div>
+    <div class="score-live" id="scoreLive"></div>
+    <div class="btnrow">
+      <button class="btn secondary" id="btnListen">اسمع 👂</button>
+      <button class="btn" id="btnPlay">العب انت 🥁</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RESULT ============ -->
+<div class="screen hidden" id="scr-result">
+  <div class="result-stars" id="resultStars"></div>
+  <div class="result-msg" id="resultMsg"></div>
+  <div class="result-sub" id="resultSub"></div>
+  <div class="btnrow">
+    <button class="btn secondary" id="btnRetry">حاول تاني 🔁</button>
+    <button class="btn" id="btnNext">المستوى اللي بعده ⏭</button>
+  </div>
+  <div style="height:14px"></div>
+  <button class="btn ghost" data-go="levels">🗺️ كل المستويات</button>
+</div>
+
+<script>
+"use strict";
+/* ================= DATA ================= */
+const SYL = {
+  ta:       { say:'تا',        saySpeak:'تا',           glyph:'♩',  beats:1, onsets:[0],              color:'#FF6B6B', drum:'kick',
+              title:'تا', desc:'رمز "تا" معناه نبضة واحدة ثابتة. كل ما تشوف ♩ اضرب الطبلة ضربة واحدة.' },
+  titi:     { say:'تي تي',     saySpeak:'تي تي',        glyph:'♫',  beats:1, onsets:[0, .5],          color:'#4FC3F7', drum:'bongo',
+              title:'تي تي', desc:'"تي تي" ضربتين سراع في مكان نبضة واحدة. شوف ♫ واضرب ضربتين بسرعة: تي تي!' },
+  taa:      { say:'تا آ',      saySpeak:'تااا',         glyph:'𝅗𝅥',  beats:2, onsets:[0],              color:'#81C784', drum:'kickLong',
+              title:'تا آ', desc:'"تا آ" نبضة طويلة بتاخد مكان نبضتين. اضرب ضربة واحدة وسيبها تعيش: تااا.' },
+  rest:     { say:'ششش',       saySpeak:'ش',            glyph:'𝄽',  beats:1, onsets:[],               color:'#BDBDBD', drum:null, rest:true,
+              title:'السكتة', desc:'السكتة معناها سكون! لما تشوف 𝄽 متضربش خالص في النبضة دي. قول: ششش.' },
+  tafatifi: { say:'تا فا تي في', saySpeak:'تا فا تي في', glyph:'♬',  beats:1, onsets:[0,.25,.5,.75],   color:'#BA68C8', drum:'bongo',
+              title:'تا فا تي في', desc:'"تا فا تي في" أربع ضربات سراع أوي في نبضة واحدة. دي أسرع وحدة عندنا!' },
+};
+const LEVELS = [
+  { bpm:60, newSym:'ta',       pat:['ta','ta','ta','ta'] },
+  { bpm:60, newSym:'titi',     pat:['titi','titi','ta','ta'] },
+  { bpm:66, newSym:null,       pat:['ta','titi','ta','titi'] },
+  { bpm:66, newSym:'taa',      pat:['taa','ta','ta'] },
+  { bpm:70, newSym:'rest',     pat:['ta','rest','titi','ta'] },
+  { bpm:70, newSym:'tafatifi', pat:['tafatifi','ta','titi','ta'] },
+  { bpm:76, newSym:null,       pat:['tafatifi','titi','taa'] },
+  { bpm:80, newSym:null,       pat:['ta','tafatifi','titi','ta','rest','titi','taa'] },
+];
+const AR_NUM = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+const toAr = n => String(n).split('').map(d=>AR_NUM[+d]).join('');
+
+/* ================= STATE ================= */
+let progress = loadProg();
+let curLevel = 0;
+let mode = 'idle';            // idle | listen | countin | play
+let voiceOn = progress.voice !== false;
+let AC = null;
+
+function loadProg(){ try { return JSON.parse(localStorage.getItem('rhythmAdv')||'{}'); } catch(e){ return {}; } }
+function saveProg(){ progress.voice = voiceOn; localStorage.setItem('rhythmAdv', JSON.stringify(progress)); }
+function starsFor(i){ return (progress.stars && progress.stars[i]) || 0; }
+function unlocked(i){ return i===0 || starsFor(i-1) > 0; }
+
+/* ================= AUDIO ================= */
+function ac(){
+  if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended') AC.resume();
+  return AC;
+}
+function drumHit(kind, when){
+  const ctx = ac(), t = when || ctx.currentTime;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  if(kind==='bongo'){
+    o.type='triangle'; o.frequency.setValueAtTime(340,t); o.frequency.exponentialRampToValueAtTime(190,t+.08);
+    g.gain.setValueAtTime(.7,t); g.gain.exponentialRampToValueAtTime(.001,t+.11);
+    o.start(t); o.stop(t+.12);
+  } else if(kind==='kickLong'){
+    o.type='sine'; o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(48,t+.3);
+    g.gain.setValueAtTime(.9,t); g.gain.exponentialRampToValueAtTime(.001,t+.5);
+    o.start(t); o.stop(t+.52);
+  } else if(kind==='tick'){
+    o.type='square'; o.frequency.setValueAtTime(kind==='tick'?1250:900,t);
+    g.gain.setValueAtTime(.25,t); g.gain.exponentialRampToValueAtTime(.001,t+.045);
+    o.start(t); o.stop(t+.05);
+  } else { // kick
+    o.type='sine'; o.frequency.setValueAtTime(165,t); o.frequency.exponentialRampToValueAtTime(45,t+.12);
+    g.gain.setValueAtTime(1,t); g.gain.exponentialRampToValueAtTime(.001,t+.2);
+    o.start(t); o.stop(t+.22);
+  }
+}
+function speakToken(key){
+  if(!voiceOn || !('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(SYL[key].saySpeak);
+  u.lang='ar'; u.rate=.95; u.pitch=1.15; u.volume=1;
+  speechSynthesis.speak(u);
+}
+function shutUp(){ if('speechSynthesis' in window) speechSynthesis.cancel(); }
+
+/* ================= PATTERN MATH ================= */
+function levelTokens(i){ return LEVELS[i].pat.map(k=>({key:k, ...SYL[k]})); }
+function totalBeats(i){ return LEVELS[i].pat.reduce((s,k)=>s+SYL[k].beats,0); }
+function tokenStarts(i){ // cumulative beat start per token
+  let b=0, out=[];
+  for(const k of LEVELS[i].pat){ out.push(b); b+=SYL[k].beats; }
+  return out;
+}
+function allOnsets(i){ // [{beat, tokIdx}]
+  const starts=tokenStarts(i), out=[];
+  LEVELS[i].pat.forEach((k,ti)=>{ SYL[k].onsets.forEach(o=>out.push({beat:starts[ti]+o, tokIdx:ti})); });
+  return out.sort((a,b)=>a.beat-b.beat);
+}
+
+/* ================= SCREENS ================= */
+const SCREENS=['home','levels','intro','play','result'];
+function show(name){
+  SCREENS.forEach(s=>document.getElementById('scr-'+s).classList.toggle('hidden', s!==name));
+  stopLoop();
+  shutUp();
+  mode='idle';
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
+  const t=b.dataset.go;
+  if(t==='home') show('home');
+  if(t==='levels'){ renderLevels(); show('levels'); }
+}));
+
+/* ---------- home ---------- */
+document.getElementById('btnStart').onclick=()=>{
+  let first=0;
+  for(let i=0;i<LEVELS.length;i++){ if(starsFor(i)===0){ first=i; break; } first=i; }
+  openLevel(first);
+};
+document.getElementById('btnLevels').onclick=()=>{ renderLevels(); show('levels'); };
+
+// floating notes decoration
+(function(){
+  const notes=['🎵','🎶','🥁','⭐','🎼'];
+  for(let i=0;i<7;i++){
+    const s=document.createElement('div');
+    s.className='floatynote'; s.textContent=notes[i%notes.length];
+    s.style.left=(Math.random()*92)+'vw';
+    s.style.animationDelay=(-Math.random()*7)+'s';
+    s.style.animationDuration=(6+Math.random()*5)+'s';
+    document.body.appendChild(s);
+  }
+})();
+
+/* ---------- level select ---------- */
+function renderLevels(){
+  const g=document.getElementById('levelsGrid'); g.innerHTML='';
+  LEVELS.forEach((lv,i)=>{
+    const b=document.createElement('button');
+    const un=unlocked(i);
+    b.className='levelcell'+(un?'':' locked');
+    const st=starsFor(i);
+    b.innerHTML = un
+      ? `<div class="lvlicon">${lv.newSym?SYL[lv.newSym].glyph:'🎵'}</div>
+         <div class="num">${toAr(i+1)}</div>
+         <div class="lvlstars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div>`
+      : `<div class="lvlicon">🔒</div><div class="num">${toAr(i+1)}</div><div class="lvlstars">☆☆☆</div>`;
+    if(un) b.onclick=()=>openLevel(i);
+    g.appendChild(b);
+  });
+}
+
+/* ---------- intro ---------- */
+function makeTok(key, clickable){
+  const t=document.createElement('button');
+  t.className='tok'+(SYL[key].rest?' rest':'');
+  t.innerHTML=`<div class="tokglyph">${SYL[key].glyph}</div><div class="toksay">${SYL[key].say}</div>`;
+  t.style.boxShadow=`0 4px 0 ${SYL[key].color}`;
+  if(clickable) t.onclick=()=>{ ac(); if(SYL[key].drum) drumHit(SYL[key].drum); speakToken(key); flashTok(t); };
+  return t;
+}
+function flashTok(el){ el.classList.add('lit'); setTimeout(()=>el.classList.remove('lit'),260); }
+
+function openLevel(i){
+  curLevel=i;
+  const lv=LEVELS[i], ns=lv.newSym;
+  document.getElementById('introLevelName').textContent='المستوى '+toAr(i+1);
+  if(ns){
+    document.getElementById('introTitle').textContent='رمز جديد: '+SYL[ns].title+'!';
+    document.getElementById('introGlyph').textContent=SYL[ns].glyph;
+    document.getElementById('introSay').textContent=SYL[ns].say;
+    document.getElementById('introDesc').textContent=SYL[ns].desc;
+  } else {
+    document.getElementById('introTitle').textContent='مستوى جديد، ركّز معايا!';
+    document.getElementById('introGlyph').textContent='🎵';
+    document.getElementById('introSay').textContent='يلا بينا';
+    document.getElementById('introDesc').textContent='النمط ده بيجمع اللي اتعلمناه. اسمعه كويس وبعدين اضربه انت.';
+  }
+  const p=document.getElementById('introPattern'); p.innerHTML='';
+  lv.pat.forEach(k=>p.appendChild(makeTok(k,true)));
+  show('intro');
+}
+document.getElementById('btnGoListen').onclick=()=>openPlay();
+
+/* ---------- play screen ---------- */
+let rafId=null, sched=null; // sched: {t0, beatSec, countBeats}
+const PERFECT=.13, GOOD=.24;
+
+function openPlay(){
+  document.getElementById('playLevelName').textContent='المستوى '+toAr(curLevel+1);
+  const p=document.getElementById('playPattern'); p.innerHTML='';
+  LEVELS[curLevel].pat.forEach(k=>p.appendChild(makeTok(k,false)));
+  document.getElementById('countIn').textContent='';
+  document.getElementById('beatFill').style.width='0%';
+  document.getElementById('scoreLive').textContent='';
+  document.getElementById('playHint').textContent='دوس "اسمع" وركّز في الإيقاع 👂';
+  show('play');
+}
+function stopLoop(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } sched=null; }
+
+function playSchedule(isListen, onDone){
+  stopLoop(); shutUp();
+  const ctx=ac();
+  const bpm=LEVELS[curLevel].bpm, beatSec=60/bpm;
+  const countBeats=4;
+  const t0=ctx.currentTime + .15;
+  const tb=totalBeats(curLevel);
+  const starts=tokenStarts(curLevel);
+  const onsets=allOnsets(curLevel);
+  const patEnd = countBeats*beatSec + tb*beatSec;
+  const tokEls=[...document.getElementById('playPattern').children];
+  const state={ litTok:new Set(), spokeTok:new Set(), nextTick:0, onsetsFired:new Set() };
+  sched={t0, beatSec, countBeats, tb, taps:[], onsets, active:true};
+  mode = isListen ? 'listen' : 'countin';
+
+  document.getElementById('playHint').textContent = isListen ? 'اسمع كويس... 👂' : 'استعد... 🥁';
+  document.getElementById('countIn').textContent='';
+  document.getElementById('scoreLive').textContent='';
+
+  // pre-schedule drum sounds with WebAudio (sample-accurate)
+  for(let c=0;c<countBeats;c++) drumHit('tick', t0 + c*beatSec);
+  if(isListen){
+    onsets.forEach(o=>{
+      const key=LEVELS[curLevel].pat[o.tokIdx];
+      drumHit(SYL[key].drum, t0 + (countBeats+o.beat)*beatSec);
+    });
+  }
+
+  function frame(){
+    if(!sched || !sched.active) return;
+    const now=ctx.currentTime, el=now-t0, beatPos=el/beatSec - countBeats;
+
+    // count-in display
+    if(el < countBeats*beatSec){
+      const n=Math.floor(el/beatSec)+1;
+      const txt=toAr(Math.min(n,countBeats));
+      if(document.getElementById('countIn').textContent!==txt)
+        document.getElementById('countIn').textContent=txt;
+    } else if(document.getElementById('countIn').textContent!==''){
+      document.getElementById('countIn').textContent='';
+    }
+
+    // progress bar
+    const pct=Math.max(0,Math.min(1, beatPos/tb))*100;
+    document.getElementById('beatFill').style.width=pct+'%';
+
+    // light tokens while sounding
+    starts.forEach((s,ti)=>{
+      const inTok = beatPos>=s && beatPos<s+SYL[LEVELS[curLevel].pat[ti]].beats;
+      tokEls[ti].classList.toggle('lit', inTok);
+      if(inTok && !state.spokeTok.has(ti)){
+        state.spokeTok.add(ti);
+        if(isListen) speakToken(LEVELS[curLevel].pat[ti]);
+      }
+    });
+
+    // score live feedback for play taps already matched
+    if(!isListen && mode==='play'){
+      onsets.forEach((o,oi)=>{
+        if(state.onsetsFired.has(oi)) return;
+        const ot=(countBeats+o.beat)*beatSec;
+        if(el>ot){ state.onsetsFired.add(oi); }
+      });
+    }
+
+    if(el >= patEnd + .6){
+      const sc=sched;
+      sched.active=false; stopLoop();
+      tokEls.forEach(t=>t.classList.remove('lit'));
+      document.getElementById('countIn').textContent='';
+      if(onDone) onDone(sc);
+      return;
+    }
+    rafId=requestAnimationFrame(frame);
+  }
+  rafId=requestAnimationFrame(frame);
+}
+
+document.getElementById('btnListen').onclick=()=>{
+  document.getElementById('btnListen').disabled=true;
+  playSchedule(true, ()=>{ document.getElementById('btnListen').disabled=false; document.getElementById('playHint').textContent='دلوقتي دورك! دوس "العب انت" 🥁'; });
+};
+document.getElementById('btnPlay').onclick=()=>{
+  document.getElementById('btnPlay').disabled=true; document.getElementById('btnListen').disabled=true;
+  playSchedule(false, ()=>{
+    document.getElementById('btnPlay').disabled=false; document.getElementById('btnListen').disabled=false;
+    finishPlay();
+  });
+  // after count-in, mode flips to play
+  setTimeout(()=>{ if(sched) mode='play'; }, (4*60/LEVELS[curLevel].bpm + .15)*1000);
+};
+document.getElementById('btnBackIntro').onclick=()=>openLevel(curLevel);
+document.getElementById('btnVoice').onclick=function(){
+  voiceOn=!voiceOn; saveProg();
+  this.textContent = voiceOn ? '🔊 النطق: شغال' : '🔇 النطق: مش شغال';
+  if(!voiceOn) shutUp();
+};
+
+// drum tap
+const drum=document.getElementById('bigDrum');
+function onDrumTap(e){
+  e.preventDefault();
+  const ctx=ac();
+  drumHit('kick');
+  drum.classList.add('hit'); setTimeout(()=>drum.classList.remove('hit'),90);
+  if(sched && sched.active && mode==='play'){
+    sched.taps.push(ctx.currentTime);
+    // immediate judgement pop
+    const beatSec=sched.beatSec, cb=sched.countBeats, t0=sched.t0;
+    const el=ctx.currentTime-t0;
+    let best=null, bestD=1e9;
+    sched.onsets.forEach((o,oi)=>{
+      if(o.used) return;
+      const ot=(cb+o.beat)*beatSec, d=Math.abs(el-ot);
+      if(d<bestD){ bestD=d; best=o; }
+    });
+    const live=document.getElementById('scoreLive');
+    if(best && bestD<=GOOD){
+      best.used=true; best.err=bestD;
+      live.textContent = bestD<=PERFECT ? 'برافو! 🌟' : 'كويس 👍';
+      live.style.color = bestD<=PERFECT ? '#FFE082' : '#C8E6C9';
+      const tokEl=document.getElementById('playPattern').children[best.tokIdx];
+      if(tokEl){ tokEl.classList.add('tapped'); setTimeout(()=>tokEl.classList.remove('tapped'),250); }
+    } else {
+      live.textContent='ركّز مع الكروت 👀'; live.style.color='#FFAB91';
+    }
+  }
+}
+drum.addEventListener('pointerdown', onDrumTap);
+
+function finishPlay(sc){
+  const onsets=(sc && sc.onsets) || allOnsets(curLevel);
+  let pts=0;
+  onsets.forEach(o=>{ if(o.used) pts += (o.err<=PERFECT ? 1 : .6); });
+  const pct = onsets.length ? pts/onsets.length : 0;
+  let stars = pct>=.88 ? 3 : pct>=.6 ? 2 : pct>=.32 ? 1 : 0;
+  mode='idle';
+
+  // save progress
+  progress.stars=progress.stars||{};
+  if(stars > starsFor(curLevel)) progress.stars[curLevel]=stars;
+  saveProg();
+
+  const rs=document.getElementById('resultStars');
+  rs.innerHTML=[0,1,2].map(i=>`<span class="${i<stars?'':'dim'}">⭐</span>`).join('');
+  const msgs=[
+    ['مش مشكلة، حاول تاني! 💪','اسمع النمط كذا مرة الأول وبعدين اضرب معاه.'],
+    ['كويس! 👍','نجمة! عايز تطلع أعلى؟ ركّز في توقيت الضربات.'],
+    ['جميل أوي! 🎉','نجمتين! قربت توصل للتلاتة.'],
+    ['برافو عليك يا نجم! 🏆','تلات نجوم! إيقاعك مظبوط جدا!'],
+  ];
+  document.getElementById('resultMsg').textContent=msgs[stars][0];
+  document.getElementById('resultSub').textContent=msgs[stars][1];
+  const next=document.getElementById('btnNext');
+  if(curLevel+1<LEVELS.length && stars>0){ next.classList.remove('hidden'); }
+  else next.classList.add('hidden');
+  show('result');
+  if(stars>=2) confetti(stars===3?220:120);
+}
+document.getElementById('btnRetry').onclick=()=>openLevel(curLevel);
+document.getElementById('btnNext').onclick=()=>openLevel(Math.min(curLevel+1, LEVELS.length-1));
+
+/* ---------- confetti ---------- */
+function confetti(n){
+  const c=document.getElementById('confetti'), x=c.getContext('2d');
+  c.width=innerWidth; c.height=innerHeight;
+  const cols=['#FF6B6B','#FFD54F','#4FC3F7','#81C784','#BA68C8','#FF8A65'];
+  const ps=[];
+  for(let i=0;i<n;i++) ps.push({x:Math.random()*c.width, y:-20-Math.random()*c.height*.5,
+    r:5+Math.random()*7, c:cols[i%cols.length], vy:2+Math.random()*3.5, vx:-1.5+Math.random()*3,
+    a:Math.random()*Math.PI, va:-.1+Math.random()*.2});
+  let frames=0;
+  (function anim(){
+    x.clearRect(0,0,c.width,c.height);
+    ps.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.a+=p.va;
+      x.save(); x.translate(p.x,p.y); x.rotate(p.a); x.fillStyle=p.c;
+      x.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6); x.restore(); });
+    if(++frames<260) requestAnimationFrame(anim); else x.clearRect(0,0,c.width,c.height);
+  })();
+}
+
+/* ---------- boot ---------- */
+document.getElementById('btnVoice').textContent = voiceOn ? '🔊 النطق: شغال' : '🔇 النطق: مش شغال';
+show('home');
+</script>
+</body>
+</html>
